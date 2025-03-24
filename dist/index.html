@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Financiero - Rumbo a la Libertad</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/index-C6aU8ahZ.css">
+</head>
+<body>
+    <div class="container">
+        <h2>Rumbo a la Libertad Financiera</h2>
+        <p id="fechaActual"></p>
+
+        <div class="tabs">
+            <button class="tab-btn active" onclick="cambiarTab('registro')">Registro Diario</button>
+            <button class="tab-btn" onclick="cambiarTab('doordash')">DoorDash</button>
+            <button class="tab-btn" onclick="cambiarTab('fondeo')">Fondeo</button>
+            <button class="tab-btn" onclick="cambiarTab('metricas')">Métricas</button>
+        </div>
+
+        <div id="registro" class="tab-content active">
+            <h3>Registro de Ingresos y Gastos</h3>
+            <div class="input-group">
+                <label>Ingresos: $<input type="number" id="ingresos" step="0.01"></label>
+                <label>Gastos: $<input type="number" id="gastos" step="0.01"></label>
+                <label>Gasolina: $<input type="number" id="gasolina" step="0.01"></label>
+            </div>
+            <button class="guardar-btn" onclick="guardarDatos()">Guardar</button>
+            <button class="exportar-btn" onclick="exportarDatos()">Exportar Datos</button>
+            <button class="reset-btn" onclick="resetearDatos()">Reiniciar Datos</button>
+            <button class="download-btn" onclick="descargarProyecto()">Descargar Proyecto</button>
+            <div id="resumen"></div>
+        </div>
+
+        <div id="doordash" class="tab-content">
+            <h3>Registro DoorDash</h3>
+            <div class="input-group">
+                <label>Horas Trabajadas: <input type="number" id="horasDash" step="0.5"></label>
+                <label>Ingresos: $<input type="number" id="ingresosDash" step="0.01"></label>
+            </div>
+            <button class="guardar-btn" onclick="guardarDatosDoorDash()">Guardar</button>
+            <div id="resumenDoorDash"></div>
+        </div>
+
+        <div id="fondeo" class="tab-content">
+            <h3>Prueba de Fondeo</h3>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h4>Meta Mensual</h4>
+                    <input type="number" id="metaMensual" placeholder="$">
+                </div>
+                <div class="stat-card">
+                    <h4>Progreso</h4>
+                    <div id="progresoFondeo"></div>
+                </div>
+            </div>
+            <canvas id="graficoFondeo"></canvas>
+        </div>
+
+        <div id="metricas" class="tab-content">
+            <h3>Métricas y Ahorro</h3>
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <h4>Ahorro Mensual</h4>
+                    <div id="ahorroMensual"></div>
+                </div>
+                <div class="metric-card">
+                    <h4>Promedio Diario</h4>
+                    <div id="promedioDiario"></div>
+                </div>
+                <div class="metric-card">
+                    <h4>Tendencia</h4>
+                    <canvas id="graficoTendencia"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>
