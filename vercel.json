@@ -1,7 +1,19 @@
 {
-  "rewrites": [
-    { "source": "/doordash", "destination": "/doordash.html" },
-    { "source": "/deudas", "destination": "/deudas.html" },
-    { "source": "/track-record", "destination": "/track-record.html" }
+  "version": 2,
+  "builds": [
+    { "src": "index.html", "use": "@vercel/static" },
+    { "src": "dashboard.html", "use": "@vercel/static" },
+    { "src": "deudas.html", "use": "@vercel/static" },
+    { "src": "doordash.html", "use": "@vercel/static" },
+    { "src": "historial.html", "use": "@vercel/static" },
+    { "src": "track-record.html", "use": "@vercel/static" }
+  ],
+  "routes": [
+    { "src": "/", "dest": "/index.html" },
+    { "src": "/dashboard", "dest": "/dashboard.html" },
+    { "src": "/deudas", "dest": "/deudas.html" },
+    { "src": "/doordash", "dest": "/doordash.html" },
+    { "src": "/historial", "dest": "/historial.html" },
+    { "src": "/track-record", "dest": "/track-record.html" }
   ]
 }
