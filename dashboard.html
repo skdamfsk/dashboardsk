@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Financiero - Rumbo a la Libertad</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="script.js" defer></script>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        .card-modern {
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .chart-container {
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            background-color: #fff;
+        }
+        .stat-card-modern {
+            background: linear-gradient(135deg, #007bff, #0056b3);
+            color: #fff;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body class="bg-light">
+    <div class="container py-4">
+        <!-- Botón para cambiar de tema -->
+        <button class="btn btn-outline-secondary float-end toggle-theme-btn" onclick="toggleTheme()">
+            <i class="fas fa-sun"></i>
+        </button>
+
+        <h2 class="text-center mb-4">Rumbo a la Libertad Financiera</h2>
+        <p id="fechaActual" class="text-center text-muted"></p>
+
+        <!-- Botones de navegación -->
+        <div class="d-flex flex-wrap justify-content-between mb-4">
+            <button class="btn btn-secondary flex-grow-1 me-2 mb-2" onclick="window.location.href='index.html'">
+                <i class="fas fa-home"></i> Inicio
+            </button>
+            <button class="btn btn-primary flex-grow-1 me-2 mb-2" onclick="window.location.href='track-record.html'"><i class="fas fa-chart-pie"></i> Track Record</button>
+            <button class="btn btn-primary flex-grow-1 me-2 mb-2" onclick="window.location.href='deudas.html'"><i class="fas fa-money-bill-wave"></i> Deudas</button>
+            <button class="btn btn-primary flex-grow-1 mb-2" onclick="window.location.href='doordash.html'"><i class="fas fa-car"></i> DoorDash</button>
+        </div>
+
+        <div class="row">
+            <!-- Columna principal -->
+            <div class="col-md-8">
+                <div class="card-modern p-4 mb-4">
+                    <h3 class="mb-3"><i class="fas fa-wallet"></i> Registro de Ingresos y Gastos</h3>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Ingresos:</label>
+                            <input type="number" id="ingresos" class="form-control" placeholder="Ej. 500" onchange="actualizarResumen()">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Monto del Gasto:</label>
+                            <input type="number" id="montoGasto" class="form-control" placeholder="Ej. 200" onchange="actualizarResumen()">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Categoría del Gasto:</label>
+                            <input type="text" id="categoriaGasto" class="form-control" placeholder="Ej. Comida, Transporte">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Gasolina:</label>
+                            <input type="number" id="gasolina" class="form-control" placeholder="Ej. 50" onchange="actualizarResumen()">
+                        </div>
+                        <div class="col-md-12" id="otroGastoContainer" style="display: none;">
+                            <label class="form-label">Especifique el gasto:</label>
+                            <input type="text" id="otroGasto" class="form-control" placeholder="Ej. Entretenimiento">
+                        </div>
+                    </div>
+                    <div class="d-flex flex-wrap justify-content-between mt-3">
+                        <button class="btn btn-success flex-grow-1 me-2 mb-2" onclick="guardarDatos()"><i class="fas fa-save"></i> Guardar</button>
+                        <button class="btn btn-info flex-grow-1 me-2 mb-2" onclick="verHistorial()"><i class="fas fa-history"></i> Ver Historial</button>
+                        <button class="btn btn-warning flex-grow-1 me-2 mb-2" onclick="exportarDatos()"><i class="fas fa-file-export"></i> Exportar Datos</button>
+                        <button class="btn btn-danger flex-grow-1 mb-2" onclick="resetearDatos()"><i class="fas fa-trash-alt"></i> Reiniciar Datos</button>
+                    </div>
+                </div>
+
+                <!-- Sección de notificaciones importantes -->
+                <div class="card-modern p-4 mb-4">
+                    <h3 class="mb-3"><i class="fas fa-bell"></i> Notificaciones Importantes</h3>
+                    <div id="notificaciones" class="d-flex flex-column gap-3">
+                        <!-- Las notificaciones se llenarán dinámicamente -->
+                    </div>
+                </div>
+
+                <div class="card-modern p-4 mb-4">
+                    <h3 class="mb-3 text-center"><i class="fas fa-history"></i> Registros Recientes</h3>
+                    <div id="registrosRecientes" class="mt-3">
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover">
+                                <thead class="table-primary">
+                                    <tr>
+                                        <th>Fecha</th>
+                                        <th>Ingresos</th>
+                                        <th>Gastos</th>
+                                        <th>Categoría</th>
+                                        <th>Gasolina</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Los registros recientes se llenarán dinámicamente -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div id="resumenFinanciero">
+                    <!-- El contenido se llenará dinámicamente -->
+                </div>
+            </div>
+
+            <!-- Columna lateral para el resumen semanal -->
+            <div class="col-md-4">
+                <div class="card-modern p-4 sticky-top">
+                    <h3 class="mb-3"><i class="fas fa-chart-line"></i> Resumen Semanal</h3>
+                    <div id="resumenSemanal">
+                        <!-- El contenido del resumen semanal se llenará dinámicamente -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        $(document).ready(function() {
+            $('.select2').select2({
+                placeholder: "Seleccione una categoría",
+                allowClear: false // Deshabilitar el botón de "remove all items"
+            });
+        });
+
+        document.addEventListener("DOMContentLoaded", function () {
+            cargarDatos(); // Load data from localStorage on page load
+            actualizarResumenFinanciero();
+            actualizarNotificaciones();
+        });
+
+        function cargarDatos() {
+            mostrarResumenSemanal();
+            actualizarRegistrosRecientes();
+        }
+
+        function guardarDatos() {
+            const ingresosInput = document.getElementById("ingresos");
+            const montoGastoInput = document.getElementById("montoGasto");
+            const gasolinaInput = document.getElementById("gasolina");
+
+            if (!ingresosInput || !montoGastoInput || !gasolinaInput) return;
+
+            const ingresos = parseFloat(ingresosInput.value) || 0;
+            const categoriaGasto = document.getElementById("categoriaGasto").value.trim() || "Otros";
+            const gasolina = parseFloat(gasolinaInput.value) || 0;
+
+            if (ingresos === 0 && parseFloat(montoGastoInput.value) === 0 && gasolina === 0) {
+                alert("Por favor, ingresa al menos un valor.");
+                return;
+            }
+
+            const semana = obtenerSemanaActual();
+            let registros = JSON.parse(localStorage.getItem("registros")) || {};
+
+            if (!registros[semana]) {
+                registros[semana] = [];
+            }
+
+            const montoGasto = parseFloat(montoGastoInput.value) || 0;
+            const fechaActual = new Date();
+
+            registros[semana].push({
+                ingresos,
+                gastos: montoGasto,
+                categoria: categoriaGasto,
+                gasolina,
+                fecha: fechaActual.toLocaleDateString('es-ES'),
+                timestamp: fechaActual.getTime()
+            });
+
+            localStorage.setItem("registros", JSON.stringify(registros)); // Save data to localStorage
+
+            ingresosInput.value = "";
+            montoGastoInput.value = "";
+            gasolinaInput.value = "";
+
+            mostrarResumenSemanal();
+            actualizarRegistrosRecientes();
+            actualizarResumenFinanciero();
+            alert("Datos guardados correctamente.");
+        }
+
+        function mostrarResumenSemanal() {
+            const resumenSemanalElement = document.getElementById("resumenSemanal");
+            if (!resumenSemanalElement) return;
+
+            const registros = JSON.parse(localStorage.getItem("registros")) || {};
+            const semana = obtenerSemanaActual();
+            const data = registros[semana] || [];
+
+            const totalIngresos = data.reduce((acc, item) => acc + item.ingresos, 0);
+            const totalGastos = data.reduce((acc, item) => acc + item.gastos, 0);
+            const totalGasolina = data.reduce((acc, item) => acc + item.gasolina, 0);
+            const balance = totalIngresos - (totalGastos + totalGasolina);
+
+            resumenSemanalElement.innerHTML = `
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <h4>Ingresos</h4>
+                        <p>$${totalIngresos.toFixed(2)}</p>
+                    </div>
+                    <div class="stat-card">
+                        <h4>Gastos</h4>
+                        <p>$${totalGastos.toFixed(2)}</p>
+                    </div>
+                    <div class="stat-card">
+                        <h4>Gasolina</h4>
+                        <p>$${totalGasolina.toFixed(2)}</p>
+                    </div>
+                    <div class="stat-card ${balance >= 0 ? 'positive' : 'negative'}">
+                        <h4>Balance</h4>
+                        <p>$${balance.toFixed(2)}</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        function actualizarRegistrosRecientes() {
+            const tbody = document.querySelector("#registrosRecientes tbody");
+            if (!tbody) return;
+
+            const registros = JSON.parse(localStorage.getItem("registros")) || {};
+            const semanaActual = obtenerSemanaActual();
+            const registrosSemana = registros[semanaActual] || [];
+
+            const registrosOrdenados = [...registrosSemana].sort((a, b) => b.timestamp - a.timestamp);
+
+            tbody.innerHTML = "";
+
+            registrosOrdenados.slice(0, 5).forEach(registro => {
+                const fila = `
+                    <tr>
+                        <td>${registro.fecha}</td>
+                        <td>$${registro.ingresos.toFixed(2)}</td>
+                        <td>$${registro.gastos.toFixed(2)}</td>
+                        <td>${registro.categoria}</td>
+                        <td>$${registro.gasolina.toFixed(2)}</td>
+                    </tr>
+                `;
+                tbody.innerHTML += fila;
+            });
+
+            if (registrosOrdenados.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="5" class="text-center">No hay registros esta semana</td>
+                    </tr>
+                `;
+            }
+        }
+
+        function analizarFinanzas() {
+            const registros = JSON.parse(localStorage.getItem("registros")) || {};
+            const semanaActual = obtenerSemanaActual();
+            const dataActual = registros[semanaActual] || [];
+            
+            const hoy = new Date().toLocaleDateString('es-ES');
+            const registrosHoy = dataActual.filter(r => r.fecha === hoy);
+            const ingresosHoy = registrosHoy.reduce((acc, r) => acc + r.ingresos, 0);
+            const gastosHoy = registrosHoy.reduce((acc, r) => acc + r.gastos + r.gasolina, 0);
+            
+            const ingresosSemana = dataActual.reduce((acc, r) => acc + r.ingresos, 0);
+            const gastosSemana = dataActual.reduce((acc, r) => acc + r.gastos + r.gasolina, 0);
+            
+            const balanceHoy = ingresosHoy - gastosHoy;
+            const balanceSemana = ingresosSemana - gastosSemana;
+            const tasaAhorro = ingresosSemana > 0 ? ((ingresosSemana - gastosSemana) / ingresosSemana) * 100 : 0;
+            
+            const sugerencias = generarSugerencias(tasaAhorro, balanceSemana);
+            
+            return {
+                diario: { ingresos: ingresosHoy, gastos: gastosHoy, balance: balanceHoy },
+                semanal: { ingresos: ingresosSemana, gastos: gastosSemana, balance: balanceSemana },
+                metricas: { tasaAhorro },
+                sugerencias
+            };
+        }
+
+        function generarSugerencias(tasaAhorro, balance) {
+            const sugerencias = [];
+            if (tasaAhorro < 20) {
+                sugerencias.push("📊 Tu tasa de ahorro está por debajo del 20%. Considera reducir gastos no esenciales.");
+            } else if (tasaAhorro >= 40) {
+                sugerencias.push("🌟 ¡Excelente tasa de ahorro! Considera invertir el excedente.");
+            }
+            if (balance < 0) {
+                sugerencias.push("⚠️ Tu balance es negativo. Prioriza reducir gastos no esenciales.");
+            } else if (balance > 1000) {
+                sugerencias.push("💰 Tienes un buen excedente. Considera opciones de inversión o ahorro.");
+            }
+            return sugerencias;
+        }
+
+        function actualizarResumenFinanciero() {
+            const resumen = analizarFinanzas();
+            const resumenElement = document.getElementById("resumenFinanciero");
+            if (!resumenElement) return;
+
+            resumenElement.innerHTML = `
+                <div class="card-modern p-4 mb-4">
+                    <h3 class="mb-3"><i class="fas fa-chart-line"></i> Análisis Financiero</h3>
+                    
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header bg-primary text-white">
+                                    <h5 class="mb-0">Hoy</h5>
+                                </div>
+                                <div class="card-body">
+                                    <p>Ingresos: $${resumen.diario.ingresos.toFixed(2)}</p>
+                                    <p>Gastos: $${resumen.diario.gastos.toFixed(2)}</p>
+                                    <p class="${resumen.diario.balance >= 0 ? 'text-success' : 'text-danger'}">
+                                        Balance: $${resumen.diario.balance.toFixed(2)}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header bg-info text-white">
+                                    <h5 class="mb-0">Esta Semana</h5>
+                                </div>
+                                <div class="card-body">
+                                    <p>Ingresos: $${resumen.semanal.ingresos.toFixed(2)}</p>
+                                    <p>Gastos: $${resumen.semanal.gastos.toFixed(2)}</p>
+                                    <p class="${resumen.semanal.balance >= 0 ? 'text-success' : 'text-danger'}">
+                                        Balance: $${resumen.semanal.balance.toFixed(2)}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="sugerencias-container p-3 bg-light rounded">
+                        <h4 class="mb-3"><i class="fas fa-lightbulb"></i> Sugerencias</h4>
+                        <ul class="list-unstyled">
+                            ${resumen.sugerencias.map(s => `<li class="mb-2">${s}</li>`).join('')}
+                        </ul>
+                    </div>
+                </div>
+            `;
+        }
+
+        function obtenerSemanaActual() {
+            const fecha = new Date();
+            const primeraSemana = new Date(fecha.getFullYear(), 0, 1);
+            const diferencia = fecha - primeraSemana;
+            const semana = Math.ceil(diferencia / (1000 * 60 * 60 * 24 * 7));
+            return `Semana ${semana}`;
+        }
+
+        function actualizarNotificaciones() {
+            const notificacionesElement = document.getElementById("notificaciones");
+            if (!notificacionesElement) return;
+
+            const registros = JSON.parse(localStorage.getItem("registros")) || {};
+            const semanaActual = obtenerSemanaActual();
+            const dataActual = registros[semanaActual] || [];
+
+            const ingresosSemana = dataActual.reduce((acc, r) => acc + r.ingresos, 0);
+            const gastosSemana = dataActual.reduce((acc, r) => acc + r.gastos + r.gasolina, 0);
+            const balanceSemana = ingresosSemana - gastosSemana;
+
+            const notificaciones = [];
+
+            if (balanceSemana < 0) {
+                notificaciones.push({
+                    tipo: "danger",
+                    mensaje: "Tu balance es negativo esta semana. Considera reducir gastos."
+                });
+            } else if (balanceSemana > 1000) {
+                notificaciones.push({
+                    tipo: "success",
+                    mensaje: "¡Buen trabajo! Tienes un excedente de más de $1000 esta semana."
+                });
+            }
+
+            if (gastosSemana > ingresosSemana * 0.8) {
+                notificaciones.push({
+                    tipo: "warning",
+                    mensaje: "Tus gastos representan más del 80% de tus ingresos esta semana."
+                });
+            }
+
+            notificacionesElement.innerHTML = notificaciones.map(notificacion => `
+                <div class="alert alert-${notificacion.tipo}" role="alert">
+                    <i class="fas ${notificacion.tipo === 'danger' ? 'fa-exclamation-circle' : notificacion.tipo === 'warning' ? 'fa-exclamation-triangle' : 'fa-check-circle'}"></i>
+                    ${notificacion.mensaje}
+                </div>
+            `).join('');
+
+            if (notificaciones.length === 0) {
+                notificacionesElement.innerHTML = `
+                    <div class="alert alert-info" role="alert">
+                        <i class="fas fa-info-circle"></i> No hay notificaciones importantes en este momento.
+                    </div>
+                `;
+            }
+        }
+
+        function guardarDatos() {
+            const ingresosInput = document.getElementById("ingresos");
+            const montoGastoInput = document.getElementById("montoGasto");
+            const gasolinaInput = document.getElementById("gasolina");
+
+            if (!ingresosInput || !montoGastoInput || !gasolinaInput) return;
+
+            const ingresos = parseFloat(ingresosInput.value) || 0;
+            const categoriaGasto = document.getElementById("categoriaGasto").value.trim() || "Otros";
+            const gasolina = parseFloat(gasolinaInput.value) || 0;
+
+            if (ingresos === 0 && parseFloat(montoGastoInput.value) === 0 && gasolina === 0) {
+                alert("Por favor, ingresa al menos un valor.");
+                return;
+            }
+
+            const semana = obtenerSemanaActual();
+            let registros = JSON.parse(localStorage.getItem("registros")) || {};
+
+            if (!registros[semana]) {
+                registros[semana] = [];
+            }
+
+            const montoGasto = parseFloat(montoGastoInput.value) || 0;
+            const fechaActual = new Date();
+
+            registros[semana].push({
+                ingresos,
+                gastos: montoGasto,
+                categoria: categoriaGasto,
+                gasolina,
+                fecha: fechaActual.toLocaleDateString('es-ES'),
+                timestamp: fechaActual.getTime()
+            });
+
+            localStorage.setItem("registros", JSON.stringify(registros)); // Save data to localStorage
+
+            ingresosInput.value = "";
+            montoGastoInput.value = "";
+            gasolinaInput.value = "";
+
+            mostrarResumenSemanal();
+            actualizarRegistrosRecientes();
+            actualizarResumenFinanciero();
+            alert("Datos guardados correctamente.");
+            actualizarNotificaciones(); // Actualizar notificaciones después de guardar datos
+        }
+
+        function resetearDatos() {
+            localStorage.removeItem("registros");
+            mostrarResumenSemanal();
+            actualizarRegistrosRecientes();
+            actualizarResumenFinanciero();
+            alert("Datos reiniciados correctamente.");
+            actualizarNotificaciones(); // Actualizar notificaciones después de reiniciar datos
+        }
+    </script>
+</body>
+</html>
