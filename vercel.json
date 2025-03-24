@@ -1,0 +1,7 @@
+{
+  "rewrites": [
+    { "source": "/doordash", "destination": "/doordash.html" },
+    { "source": "/deudas", "destination": "/deudas.html" },
+    { "source": "/track-record", "destination": "/track-record.html" }
+  ]
+}
